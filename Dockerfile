@@ -1,7 +1,7 @@
 FROM alpine:3.9.3
 
 # Install and configure Apache WebDAV and Subversion
-RUN apk update && apk --no-cache add apache2 apache2-utils apache2-webdav mod_dav_svn subversion
+RUN apk update && apk --no-cache add apache2=2.4.39-r0 apache2-utils=2.4.39-r0 apache2-webdav=2.4.39-r0 mod_dav_svn=1.11.1-r0 subversion=1.11.1-r0
 
 RUN mkdir -p /run/apache2
 
