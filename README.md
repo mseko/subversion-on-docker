@@ -6,7 +6,19 @@
 docker run -d --name svn-server -e SVN_REPO=repo -v $(pwd)/svn/var/svn:/var/svn -v $(pwd)/svn/etc/apache2/conf.d/:/etc/apache2/conf.d/ -p 8080:80  yyyy/subversion-on-docker
 ```
 
+or
+
+```
+docker-compose up -d
+```
+(need to write docker-compose.yml)
+
 ## Using it
+
+Add User
+```
+docker exec -t svn-server htpasswd -bc /etc/apache2/conf.d/davsvn.htpasswd <username> <password>
+```
 
 Then, in a new directory elsewhere:
 
@@ -23,12 +35,7 @@ echo "hello" > .greeting
 curl -u davsvn:davsvn -X PUT -T .greeting http://0.0.0.0:xxxx/svn/repo/greeting.txt
 ```
 
-Add User
-```
-docker exec -t svn-server htpasswd -bc /etc/apache2/conf.d/davsvn.htpasswd <username> <password>
-```
-
-## docker-compose.yml
+## docker-compose.yml example
 
 ```
 version: '2.2'
