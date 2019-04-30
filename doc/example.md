@@ -1,42 +1,17 @@
-# xxx/subversion-on-docker
+# yyyy/subversion-on-docker
 
 ## Running it
 
-Starting container with docker command:
-
 ```
-docker run -d -P xxx/subversion-on-docker
+docker run -d --name svn-server -e SVN_REPO=repo -v $(pwd)/svn/var/svn:/var/svn -v $(pwd)/svn/etc/apache2/conf.d/:/etc/apache2/conf.d/ -p 8080:80  yyyy/subversion-on-docker
 ```
-The container start with the default account: davsvn (password: davsvn) and the default repository: testrepo
-
-```
-docker run -d -e SVN_REPO=repo -P xxx/subversion-on-docker
-```
-The container start with the default account: davsvn (password: davsvn) and the specified repository: repo
-
-```
-docker run -d -e DAV_SVN_USER=user -e DAV_SVN_PASS=pass -P xxx/subversion-on-docker
-```
-The container start with the specified account: user (password: pass) and the default repository: testrepo
-
-```
-docker run -d -e DAV_SVN_USER=user -e DAV_SVN_PASS=pass -e SVN_REPO=repo -P xxx/subversion-on-docker
-```
-The container start with the specified account: user (password: pass) and the specified repository: repo
-
 
 ## Using it
-
-Quick and dirty, note the server address:
-
-```
-docker ps
-```
 
 Then, in a new directory elsewhere:
 
 ```
-svn co --username davsvn --password davsvn http://0.0.0.0:32772/svn/testrepo
+svn co --username davsvn --password davsvn http://0.0.0.0:xxxx/svn/repo
 cd testrepo
 # add/chg/commit as usual
 ```
@@ -45,34 +20,28 @@ And the magic (do in a new directory)
 
 ```
 echo "hello" > .greeting
-curl -u davsvn:davsvn -X PUT -T .greeting http://0.0.0.0:32772/svn/testrepo/greeting.txt
+curl -u davsvn:davsvn -X PUT -T .greeting http://0.0.0.0:xxxx/svn/repo/greeting.txt
 ```
 
-Whereupon you can `svn up` back in the checkout to see it.
+Add User
+```
+docker exec -t svn-server htpasswd -bc /etc/apache2/conf.d/davsvn.htpasswd <username> <password>
+```
 
-Commit messages suck:
-
-    `Autoversioning commit:  a non-deltaV client made a change to`
-
-It would be nice if MOD_DAV_SVN could accept a header for a custom message. Source for that log message [is here](https://svn.apache.org/repos/asf/subversion/trunk/subversion/mod_dav_svn/version.c). There is also a
-ticket for that change [SVN-4454](https://issues.apache.org/jira/browse/SVN-4454), that is presently
-marked as 'Won't Fix'.
-
-Refer http://svnbook.red-bean.com/en/1.7/svn.webdav.autoversioning.html for canonical SVNAutoversioning info.
-
-
-## docker-compose.yml(書きかけ)
+## docker-compose.yml
 
 ```
 version: '2.2'
 services:
- svn:
-  image: xxx/subversion-on-docker
-  container_name: svn
+ svn-server:
+  image: yyyy/subversion-on-docker
+  container_name: svn-server 
+  environment:
+    - SVN_REPO=repo
   ports:
-    - "80"
+    - "8080:80"
   volumes:
-    - /path/volumes/httpconfig:/etc/apache2/conf.d/httpconfig
-    - /path/volumes/htpasswd:/etc/apache2/myhtpasswd
+    - ./svn/var/svn:/var/svn 
+    - ./svn/etc/apache2/conf.d/:/etc/apache2/conf.d/
   restart: unless-stopped
 ```

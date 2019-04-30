@@ -20,4 +20,3 @@ EXPOSE 80
 
 # Define default command
 CMD ["/run.sh"]
-
